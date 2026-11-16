@@ -1,0 +1,31 @@
+
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Windows executable
+        run: dotnet publish StorkAutopilot/StorkAutopilot.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: StorkAutopilot-Windows-x64
+          path: publish/StorkAutopilot.exe
+          if-no-files-found: error
